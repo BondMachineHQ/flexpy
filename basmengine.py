@@ -35,8 +35,12 @@ def basmEngine(self, expr):
 		return out,myIndex
 
 def basmExprPreprocessor(self, expr):
+	# The preprocessor will take care of the expressions that are not directly supported by the BASM engine
+	# but can be transformed into a supported expression
+	# For example, an addition of more than 2 elements can be transformed into a chain of additions
+	# Version 1 implementation
+	# Addition of more than 2 elements
 	if expr.func == sp.Add and len(expr.args) > 2:
-		# Version 1
 		for i in range(0,len(expr.args),2):
 			with sp.evaluate(False):
 				if i == 0:
@@ -48,9 +52,23 @@ def basmExprPreprocessor(self, expr):
 					newExpr = newExpr + expr.args[i+2]
 					break
 		expr = newExpr
-			
-		# Version 2
-		## TODO: Implement this		 			
+
+	# Multiplication of more than 2 elements
+	if expr.func == sp.Mul and len(expr.args) > 2:
+		for i in range(0,len(expr.args),2):
+			with sp.evaluate(False):
+				if i == 0:
+					newExpr = expr.args[i] * expr.args[i+1]
+				else:
+					newExpr = newExpr * (expr.args[i] * expr.args[i+1])
+				
+				if i+2 == len(expr.args)-1:
+					newExpr = newExpr * expr.args[i+2]
+					break
+		expr = newExpr
+
+	# Version 2
+	## TODO: Implement this		 			
 	return expr
 
 def basmArgsProcessor(self, expr, myIndex):
