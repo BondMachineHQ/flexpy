@@ -67,7 +67,7 @@ def basmExprPreprocessor(self, expr):
 					break
 		expr = newExpr
 
-	# Version 2
+	# Version 2 (check issue #2)
 	## TODO: Implement this		 			
 	return expr
 
