@@ -1,5 +1,5 @@
 from hlsengine import hlsEngine
-from basmengine import basmEngine, basmArgsProcessor
+from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
 class flexpyEngine:
 	def __init__(self, symexpr=None, type=None, prefix=None, regsize=None):
@@ -33,3 +33,4 @@ class flexpyEngine:
 flexpyEngine.hlsEngine = hlsEngine
 flexpyEngine.basmEngine = basmEngine
 flexpyEngine.basmArgsProcessor = basmArgsProcessor
+flexpyEngine.basmExprPreprocessor = basmExprPreprocessor

@@ -18,6 +18,10 @@ def basmEngine(self, expr):
 		self.basm += "%meta filinkatt "+out+" fi:ext, index: "+str(inIdx)+", type: input\n"
 		return out,myIndex
 	else:
+		# Preprocess the expression
+		expr = self.basmExprPreprocessor(expr)
+		print(expr)
+
 		# Create the processor and return the arguments really used, no the ones absorbed by the processor
 		realArgs = self.basmArgsProcessor(expr, myIndex)
 		# Create my side of the link, my caller will create the other side
@@ -29,6 +33,25 @@ def basmEngine(self, expr):
 		# self.basm += "%meta iodef "+out+"\n"
 		self.basm += "%meta filinkatt "+out+" fi: node_"+str(myIndex)+", type: output, index: 0\n"
 		return out,myIndex
+
+def basmExprPreprocessor(self, expr):
+	if expr.func == sp.Add and len(expr.args) > 2:
+		# Version 1
+		for i in range(0,len(expr.args),2):
+			with sp.evaluate(False):
+				if i == 0:
+					newExpr = expr.args[i] + expr.args[i+1]
+				else:
+					newExpr = newExpr + (expr.args[i] + expr.args[i+1])
+				
+				if i+2 == len(expr.args)-1:
+					newExpr = newExpr + expr.args[i+2]
+					break
+		expr = newExpr
+			
+		# Version 2
+		## TODO: Implement this		 			
+	return expr
 
 def basmArgsProcessor(self, expr, myIndex):
 	realArsg = []
