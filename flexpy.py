@@ -37,7 +37,7 @@ def main():
 
 	with sp.evaluate(False):
 		spEXpr = sp.parsing.sympy_parser.parse_expr(expr)
-	print(srepr(spEXpr))
+	# print(srepr(spEXpr))
 
 	eng=flexpyEngine(spEXpr, regsize=arguments["-r"], prefix=arguments["-p"], type=arguments["-t"])
 
