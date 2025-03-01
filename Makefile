@@ -1,3 +1,5 @@
+PACKAGENAME=flexpy
+
 all: package
 
 .PHONY: install-req
@@ -8,9 +10,9 @@ install-req:
 .PHONY: package
 package: install-req
 	@echo "Packaging..."
-	pyinstaller --onefile flexpy.py
+	pyinstaller --onefile ${PACKAGENAME}.py
 
 .PHONY: clean
 clean:
 	@echo "Cleaning..."
-	rm -rf build/ dist/ flexpy.spec
+	rm -rf build/ dist/ ${PACKAGENAME}.spec
