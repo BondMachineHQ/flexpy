@@ -21,7 +21,7 @@ Options:
 
 from docopt import docopt
 import sympy as sp
-from sympy import *
+# from sympy import *
 from flexpyengine import flexpyEngine
 
 def main():
@@ -35,11 +35,19 @@ def main():
 	expr = f.read()
 	f.close()
 
-	with sp.evaluate(False):
-		spEXpr = sp.parsing.sympy_parser.parse_expr(expr)
+	localParams = {'spExpr': None}
+	globalParams = {'sp': sp}
+	exec(expr, globalParams, localParams)
+	spExpr = localParams['spExpr']
+
+	if spExpr is None:
+		print("Error: The expression is not valid")
+		return
+
+	# spExpr = sp.parse_expr(expr, evaluate=False)
 	# print(srepr(spEXpr))
 
-	eng=flexpyEngine(spEXpr, regsize=arguments["-r"], prefix=arguments["-p"], type=arguments["-t"])
+	eng=flexpyEngine(spExpr, regsize=arguments["-r"], prefix=arguments["-p"], type=arguments["-t"])
 
 	if arguments["--basm"]:
 		outbasm=eng.to_basm()
