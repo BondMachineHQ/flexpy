@@ -1,0 +1,55 @@
+
+%meta bmdef global registersize:32
+
+%section terminal .romtext iomode:sync
+	entry _start
+_start:
+	mov o0, r0
+	j _start
+%endsection
+
+%section unary .romtext iomode:sync
+	entry _start
+_start:
+	mov r0, i0
+	mov o0, r0
+	j _start
+%endsection
+
+%section binary .romtext iomode:sync
+	entry _start
+_start:
+	mov r0, i0
+	mov r1, i1
+	mov o0, r0
+	j _start
+%endsection
+
+%meta ioatt node_1_link cp:bm, type: output, index: 0
+%meta cpdef node_1 romcode: binary, execmode: ha
+%meta cpdef node_2 romcode: unary, execmode: ha
+%meta cpdef node_3 romcode: binary, execmode: ha
+%meta ioatt node_4_link cp:bm, index: 0, type: input
+%meta ioatt node_4_link cp: node_3, type: input, index: 0
+%meta cpdef node_5 romcode: binary, execmode: ha
+%meta ioatt node_6_link cp:bm, index: 1, type: input
+%meta ioatt node_6_link cp: node_5, type: input, index: 0
+%meta ioatt node_7_link cp:bm, index: 2, type: input
+%meta ioatt node_7_link cp: node_5, type: input, index: 1
+%meta ioatt node_5_link cp: node_5, type: output, index: 0
+%meta ioatt node_5_link cp: node_3, type: input, index: 1
+%meta ioatt node_3_link cp: node_3, type: output, index: 0
+%meta ioatt node_3_link cp: node_2, type: input, index: 0
+%meta ioatt node_2_link cp: node_2, type: output, index: 0
+%meta ioatt node_2_link cp: node_1, type: input, index: 0
+%meta cpdef node_8 romcode: unary, execmode: ha
+%meta cpdef node_9 romcode: binary, execmode: ha
+%meta ioatt node_10_link cp:bm, index: 3, type: input
+%meta ioatt node_10_link cp: node_9, type: input, index: 0
+%meta ioatt node_11_link cp:bm, index: 4, type: input
+%meta ioatt node_11_link cp: node_9, type: input, index: 1
+%meta ioatt node_9_link cp: node_9, type: output, index: 0
+%meta ioatt node_9_link cp: node_8, type: input, index: 0
+%meta ioatt node_8_link cp: node_8, type: output, index: 0
+%meta ioatt node_8_link cp: node_1, type: input, index: 1
+%meta ioatt node_1_link cp: node_1, type: output, index: 0
