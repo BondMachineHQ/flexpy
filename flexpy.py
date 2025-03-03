@@ -21,7 +21,6 @@ Options:
 
 from docopt import docopt
 import sympy as sp
-# from sympy import *
 from flexpyengine import flexpyEngine
 
 def main():

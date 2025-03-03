@@ -16,16 +16,20 @@ class flexpyEngine:
 		self.ops = {"addop": "add", "multop": "mult"}
 		self.regsize = regsize
 		self.inputs = []
+		self.outputs = []
 		self.index = 0
+		self.mindex = 0
 
 	def to_basm(self):
 		self.index = 0
 		self.inputs = []
+		self.outputs = []
 		self.basmEngine(self.expr)
 		return self.basm
 	def to_hls(self):
 		self.index = 0
 		self.inputs = []
+		self.outputs = []
 		self.hlsEngine(self.expr)
 		return self.hls
 
