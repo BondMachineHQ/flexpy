@@ -125,29 +125,68 @@ def basmArgsProcessor(self, expr, myIndex):
 				opName = "mult"
 				opOp = self.ops["multop"]
 
+			# Check if the arguments have real/imaginary parts
+			arg0Real,arg0Im = tuple(x != 0 for x in arg0.as_real_imag())
+			arg1Real,arg1Im = tuple(x != 0 for x in arg1.as_real_imag())
+
+			print (arg0,arg1)
+			print(arg0Real,arg0Im,arg1Real,arg1Im)
+
+			# Check whether the arguments are real, imaginary or full complex numbers
+			if arg0Real and arg0Im:
+				arg0Type = "full"
+			elif arg0Real:
+				arg0Type = "real"
+			elif arg0Im:
+				arg0Type = "imag"
+			else:
+				arg0Type = "zero"
+
+			if arg1Real and arg1Im:
+				arg1Type = "full"
+			elif arg1Real:
+				arg1Type = "real"
+			elif arg1Im:
+				arg1Type = "imag"
+			else:
+				arg1Type = "zero"
+
 			# Check if the arguments are numbers
-			numParams = 0
-			numVal = 0
+			numParams = 0 
+			numValReal = 0
+			numValIm = 0
 			realArsg = []
 			if arg0.is_number:
 				numParams+=1
-				numVal = arg0.evalf()
+				if arg0Real:
+					numValReal = arg0.as_real_imag()[0]
+				if arg0Im:
+					numValIm = arg0.as_real_imag()[1]
+
 			else:
 				realArsg.append(arg0)
 
 			if arg1.is_number:
 				numParams+=1
-				numVal = arg1.evalf()
+				if arg1Real:
+					numValReal = arg1.as_real_imag()[0]
+				if arg1Im:
+					numValIm = arg1.as_real_imag()[1]
 			else:
 				realArsg.append(arg1)
 
 			if numParams == 2:
-				print ("Unimplemented")
+				print ("unimplemented: the expression is a " + opName + " with two numbers")
 				sys.exit(1)
 			elif numParams == 1:
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+opName+"num, number: 0f"+str(numVal)+", "+opName+"op:"+opOp+"\n"
+				if arg0.is_number:
+					nodeName = opName + "arg" + arg1Type + "num" + arg0Type
+				else:
+					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: 0f"+str(numValReal)+", numberimag: 0f"+str(numValIm)+", "+opName+"op:"+opOp+"\n"
 			else:
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+opName+", "+opName+"op:"+opOp+" \n"
+				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+opName+"op:"+opOp+"\n"
 
 			return realArsg
 		else:
