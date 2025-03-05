@@ -5,16 +5,15 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-p <prefix>] [-t <type>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>]
   flexpy -h | --help
 
 Options:
   -h --help                                         Show this screen.
   -e <expression>                                   The expression to convert.
   -o <outputfile>                                   The output file.
-  -r <registersize>                                 The size of the registers.
-  -p <prefix>                                       The prefix for the numbers.
-  -t <type>                                         The type of the numbers.
+  -r <registersize>                                 The size of the registers, only needed if the data type is variable size.
+  -t <type>                                         The type of the numbers, if not specified it is set to float32.
   --basm                                            Convert the expression to BASM.
   --hls                                             Convert the expression to HLS.
 """
@@ -46,7 +45,7 @@ def main():
 	# spExpr = sp.parse_expr(expr, evaluate=False)
 	# print(srepr(spEXpr))
 
-	eng=flexpyEngine(spExpr, regsize=arguments["-r"], prefix=arguments["-p"], type=arguments["-t"])
+	eng=flexpyEngine(spExpr, regsize=arguments["-r"], type=arguments["-t"])
 
 	if arguments["--basm"]:
 		outbasm=eng.to_basm()

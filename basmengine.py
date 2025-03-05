@@ -120,17 +120,15 @@ def basmArgsProcessor(self, expr, myIndex):
 			arg1 = expr.args[1]
 			if expr.func == sp.Add:
 				opName = "add"
-				opOp = self.ops["addop"]
 			elif expr.func == sp.Mul:
 				opName = "mult"
-				opOp = self.ops["multop"]
 
 			# Check if the arguments have real/imaginary parts
 			arg0Real,arg0Im = tuple(x != 0 for x in arg0.as_real_imag())
 			arg1Real,arg1Im = tuple(x != 0 for x in arg1.as_real_imag())
 
-			print (arg0,arg1)
-			print(arg0Real,arg0Im,arg1Real,arg1Im)
+			# print (arg0,arg1)
+			# print(arg0Real,arg0Im,arg1Real,arg1Im)
 
 			# Check whether the arguments are real, imaginary or full complex numbers
 			if arg0Real and arg0Im:
@@ -183,10 +181,10 @@ def basmArgsProcessor(self, expr, myIndex):
 					nodeName = opName + "arg" + arg1Type + "num" + arg0Type
 				else:
 					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: 0f"+str(numValReal)+", numberimag: 0f"+str(numValIm)+", "+opName+"op:"+opOp+"\n"
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: 0f"+str(numValReal)+", numberimag: 0f"+str(numValIm)+", "+self.opsstring+"\n"
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+opName+"op:"+opOp+"\n"
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+"\n"
 
 			return realArsg
 		else:
