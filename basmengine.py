@@ -3,33 +3,72 @@ import sympy as sp
 
 def basmEngine(self, expr):
 	self.index+=1
+	mId = "_"+str(self.mindex)+"_"
 	myIndex = int(self.index)
-	out = "node_"+str(myIndex)+"_link"
+
+	outRe = ""
+	outIm = ""
+
+	hasReal,hasImm = tuple(x != 0 for x in expr.as_real_imag())
+	if hasReal:
+		outRe = "node"+mId+str(myIndex)+"_link_re"
+	if hasImm:
+		outIm = "node"+mId+str(myIndex)+"_link_im"
 	if myIndex == 1:
-		self.basm += "%meta filinkatt "+out+" fi:ext, type: output, index: 0\n"
+		if hasReal:
+			self.outputs.append("real: "+str(expr))
+			print(str(len(self.outputs)-1) + " -> real: "+str(expr))
+			self.basm += "%meta filinkatt "+outRe+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
+		if hasImm:
+			self.outputs.append("imag: "+str(expr))
+			print(str(len(self.outputs)-1) + " -> imag: "+str(expr))
+			self.basm += "%meta filinkatt "+outIm+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
 	if len(expr.args) == 0:
-		print(expr)
+		# print(expr)
 		# This is an input node, create a link using the index among all the inputs, even if inputs grow the index will be unique
-		if not str(expr) in self.inputs:
-			self.inputs.append(str(expr))
-		inIdx = self.inputs.index(str(expr))
-		self.basm += "%meta filinkatt "+out+" fi:ext, index: "+str(inIdx)+", type: input\n"
-		return out,myIndex
+		# this is true even when basmEngine is called multiple times to generate matrix elements	
+		if hasReal:
+			if not "real: "+str(expr) in self.inputs:
+				self.inputs.append("real: "+str(expr))
+				print("real: "+str(expr)+" -> "+str(len(self.inputs)-1))
+			inIdx = self.inputs.index("real: "+str(expr))
+			self.basm += "%meta filinkatt "+outRe+" fi:ext, index: "+str(inIdx)+", type: input\n"
+		if hasImm:
+			if not "imag: "+str(expr) in self.inputs:
+				self.inputs.append("imag: "+str(expr))
+				print("imag: "+str(expr)+" -> "+str(len(self.inputs)-1))
+			inIdx = self.inputs.index("imag: "+str(expr))
+			self.basm += "%meta filinkatt "+outIm+" fi:ext, index: "+str(inIdx)+", type: input\n"
+		return outRe,outIm,myIndex
 	else:
 		# Preprocess the expression
 		expr = self.basmExprPreprocessor(expr)
-		print(expr)
+		# print(expr)
 
-		# Create the processor and return the arguments really used, no the ones absorbed by the processor
+		# Create the processor and return the arguments really used, not the ones eventually absorbed by the processor
 		realArgs = self.basmArgsProcessor(expr, myIndex)
 		# Create my side of the link, my caller will create the other side
+
+		linkIdx = 0
 		for i in range(len(realArgs)):
 			arg=realArgs[i]
-			inp,idx=self.basmEngine(arg)
-			self.basm += "%meta filinkatt "+inp+" fi: node_"+str(myIndex)+", type: input, index: "+str(i)+"\n"
+			inpRe,inpIm,idx=self.basmEngine(arg)
+			if inpRe != "":
+				self.basm += "%meta filinkatt "+inpRe+" fi: node"+mId+str(myIndex)+", type: input, index: "+str(linkIdx)+"\n"
+				linkIdx+=1
+			if inpIm != "":
+				self.basm += "%meta filinkatt "+inpIm+" fi: node"+mId+str(myIndex)+", type: input, index: "+str(linkIdx)+"\n"
+				linkIdx+=1
 			# Create link to the called nodeindex
-		self.basm += "%meta filinkatt "+out+" fi: node_"+str(myIndex)+", type: output, index: 0\n"
-		return out,myIndex
+
+		oi = 0	
+		if hasReal:
+			self.basm += "%meta filinkatt "+outRe+" fi: node"+mId+str(myIndex)+", type: output, index: "+str(oi)+"\n"
+			oi+=1
+		if hasImm:
+			self.basm += "%meta filinkatt "+outIm+" fi: node"+mId+str(myIndex)+", type: output, index: "+str(oi)+"\n"
+
+		return outRe,outIm,myIndex
 
 def basmExprPreprocessor(self, expr):
 	# The preprocessor will take care of the expressions that are not directly supported by the BASM engine
@@ -69,8 +108,9 @@ def basmExprPreprocessor(self, expr):
 	return expr
 
 def basmArgsProcessor(self, expr, myIndex):
+	mId = "_"+str(self.mindex)+"_"
 	realArsg = []
-	self.basm += "%meta cpdef node_"+str(myIndex)+" fragcollapse:node_"+str(myIndex)+"\n"
+	self.basm += "%meta cpdef node"+mId+str(myIndex)+" fragcollapse:node"+mId+str(myIndex)+"\n"
 
 	# Start identifying the node and mapping it to known fragments
 	# Addition
@@ -80,34 +120,71 @@ def basmArgsProcessor(self, expr, myIndex):
 			arg1 = expr.args[1]
 			if expr.func == sp.Add:
 				opName = "add"
-				opOp = self.ops["addop"]
 			elif expr.func == sp.Mul:
 				opName = "mult"
-				opOp = self.ops["multop"]
+
+			# Check if the arguments have real/imaginary parts
+			arg0Real,arg0Im = tuple(x != 0 for x in arg0.as_real_imag())
+			arg1Real,arg1Im = tuple(x != 0 for x in arg1.as_real_imag())
+
+			# print (arg0,arg1)
+			# print(arg0Real,arg0Im,arg1Real,arg1Im)
+
+			# Check whether the arguments are real, imaginary or full complex numbers
+			if arg0Real and arg0Im:
+				arg0Type = "full"
+			elif arg0Real:
+				arg0Type = "real"
+			elif arg0Im:
+				arg0Type = "imag"
+			else:
+				arg0Type = "zero"
+
+			if arg1Real and arg1Im:
+				arg1Type = "full"
+			elif arg1Real:
+				arg1Type = "real"
+			elif arg1Im:
+				arg1Type = "imag"
+			else:
+				arg1Type = "zero"
 
 			# Check if the arguments are numbers
-			numParams = 0
-			numVal = 0
+			numParams = 0 
+			numValReal = 0
+			numValIm = 0
 			realArsg = []
 			if arg0.is_number:
 				numParams+=1
-				numVal = arg0.evalf()
+				if arg0Real:
+					numValReal = arg0.as_real_imag()[0]
+				if arg0Im:
+					numValIm = arg0.as_real_imag()[1]
+
 			else:
 				realArsg.append(arg0)
 
 			if arg1.is_number:
 				numParams+=1
-				numVal = arg1.evalf()
+				if arg1Real:
+					numValReal = arg1.as_real_imag()[0]
+				if arg1Im:
+					numValIm = arg1.as_real_imag()[1]
 			else:
 				realArsg.append(arg1)
 
 			if numParams == 2:
-				print ("Unimplemented")
+				print ("unimplemented: the expression is a " + opName + " with two numbers")
 				sys.exit(1)
 			elif numParams == 1:
-				self.basm += "%meta fidef node_"+str(myIndex)+" fragment:"+opName+"num, number: 0f"+str(numVal)+", "+opName+"op:"+opOp+"\n"
+				if arg0.is_number:
+					nodeName = opName + "arg" + arg1Type + "num" + arg0Type
+				else:
+					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: 0f"+str(numValReal)+", numberimag: 0f"+str(numValIm)+", "+self.opsstring+"\n"
 			else:
-				self.basm += "%meta fidef node_"+str(myIndex)+" fragment:"+opName+", "+opName+"op:"+opOp+" \n"
+				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+"\n"
 
 			return realArsg
 		else:
