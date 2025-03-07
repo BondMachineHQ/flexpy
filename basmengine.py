@@ -103,6 +103,8 @@ def basmExprPreprocessor(self, expr):
 					break
 		expr = newExpr
 
+	# Pow is ignored
+
 	# Version 2 (check issue #2)
 	## TODO: Implement this		 			
 	return expr
@@ -149,7 +151,8 @@ def basmArgsProcessor(self, expr, myIndex):
 			else:
 				arg1Type = "zero"
 
-			# Check if the arguments are numbers
+			# Check if the arguments are numbers, if they are, floatint point numbers are used and extracted
+			# sympy uses integers, rationals etc. to represent numbers, buy in the end they are converted to floating point numbers
 			numParams = 0 
 			numValReal = 0
 			numValIm = 0
@@ -177,11 +180,92 @@ def basmArgsProcessor(self, expr, myIndex):
 				print ("unimplemented: the expression is a " + opName + " with two numbers")
 				sys.exit(1)
 			elif numParams == 1:
+				# This inverse order is due to the fact that the first argument is the one that is absorbed by the processor
+				# the second argument is the one that is used in the processor
+				# Also, it is possible beacuse the operations are commutative
 				if arg0.is_number:
 					nodeName = opName + "arg" + arg1Type + "num" + arg0Type
 				else:
 					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: 0f"+str(numValReal)+", numberimag: 0f"+str(numValIm)+", "+self.opsstring+"\n"
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+"\n"
+			else:
+				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+"\n"
+
+			return realArsg
+		else:
+			print ("Unimplemented")
+			sys.exit(1)
+	elif expr.func == sp.Pow:
+		if len(expr.args) == 2:
+			arg0 = expr.args[0]
+			arg1 = expr.args[1]
+			if expr.func == sp.Pow:
+				opName = "pow"
+
+			# Check if the arguments have real/imaginary parts
+			arg0Real,arg0Im = tuple(x != 0 for x in arg0.as_real_imag())
+			arg1Real,arg1Im = tuple(x != 0 for x in arg1.as_real_imag())
+
+			# print (arg0,arg1)
+			# print(arg0Real,arg0Im,arg1Real,arg1Im)
+
+			# Check whether the arguments are real, imaginary or full complex numbers
+			if arg0Real and arg0Im:
+				arg0Type = "full"
+			elif arg0Real:
+				arg0Type = "real"
+			elif arg0Im:
+				arg0Type = "imag"
+			else:
+				arg0Type = "zero"
+
+			if arg1Real and arg1Im:
+				arg1Type = "full"
+			elif arg1Real:
+				arg1Type = "real"
+			elif arg1Im:
+				arg1Type = "imag"
+			else:
+				arg1Type = "zero"
+
+			# Check if the arguments are numbers, if they are, floatint point numbers are used and extracted
+			# sympy uses integers, rationals etc. to represent numbers, buy in the end they are converted to floating point numbers
+			numParams = 0 
+			numValReal = 0
+			numValIm = 0
+			arg0Num = ""
+			arg1Num = ""
+			realArsg = []
+			if arg0.is_number:
+				numParams+=1
+				if arg0Real:
+					numValReal = arg0.as_real_imag()[0]
+				if arg0Im:
+					numValIm = arg0.as_real_imag()[1]
+				arg0Num = "num"
+			else:
+				arg0Num = "arg"
+				realArsg.append(arg0)
+
+			if arg1.is_number:
+				numParams+=1
+				if arg1Real:
+					numValReal = arg1.as_real_imag()[0]
+				if arg1Im:
+					numValIm = arg1.as_real_imag()[1]
+				arg1Num = "num"
+			else:
+				arg1Num = "arg"
+				realArsg.append(arg1)
+
+			if numParams == 2:
+				print ("unimplemented: the expression is a " + opName + " with two numbers")
+				sys.exit(1)
+			elif numParams == 1:
+				# No inverse order here, pow is not commutative
+				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+"\n"
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+"\n"
