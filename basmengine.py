@@ -14,7 +14,8 @@ def basmEngine(self, expr):
 		outRe = "node"+mId+str(myIndex)+"_link_re"
 	if hasImm:
 		outIm = "node"+mId+str(myIndex)+"_link_im"
-	if myIndex == 1:
+	if self.newout:
+		self.newout = False
 		if hasReal:
 			self.outputs.append("real: "+str(expr))
 			print(str(len(self.outputs)-1) + " -> real: "+str(expr))

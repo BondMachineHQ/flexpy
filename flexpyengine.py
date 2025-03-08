@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import json
+import sympy as sp
 from hlsengine import hlsEngine
 from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
@@ -44,14 +45,30 @@ class flexpyEngine:
 		self.index = 0
 		self.inputs = []
 		self.outputs = []
-		self.basmEngine(self.expr)
+		for e in self.serializeExpr(self.expr):
+			self.newout = True
+			self.basmEngine(e)
 		return self.basm
 	def to_hls(self):
 		self.index = 0
 		self.inputs = []
 		self.outputs = []
-		self.hlsEngine(self.expr)
+		for e in self.serializeExpr(self.expr):
+			self.newout = True
+			self.hlsEngine(e)
 		return self.hls
+	def serializeExpr(self, expr):
+		if expr.is_Matrix:
+			for i in range(expr.shape[0]):
+				for j in range(expr.shape[1]):
+					yield expr[i,j]
+		elif type(expr) == sp.tensor.array.dense_ndim_array.ImmutableDenseNDimArray:
+			fl = sp.flatten(expr)
+			for i in fl:
+				yield i
+		else:
+			yield expr
+
 	def callBmNumbers(self, type):
 		# Check if the bmnumbers executable is available
 		try:
