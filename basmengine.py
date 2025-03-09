@@ -18,26 +18,26 @@ def basmEngine(self, expr):
 		self.newout = False
 		if hasReal:
 			self.outputs.append("real: "+str(expr))
-			print(str(len(self.outputs)-1) + " -> real: "+str(expr))
+			print("o"+str(len(self.outputs)-1) + " -> real: "+str(expr))
 			self.basm += "%meta filinkatt "+outRe+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
 		if hasImm:
 			self.outputs.append("imag: "+str(expr))
-			print(str(len(self.outputs)-1) + " -> imag: "+str(expr))
+			print("o"+str(len(self.outputs)-1) + " -> imag: "+str(expr))
 			self.basm += "%meta filinkatt "+outIm+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
-	if len(expr.args) == 0:
+	if len(expr.args) == 0 and type(expr) == sp.Symbol:
 		# print(expr)
 		# This is an input node, create a link using the index among all the inputs, even if inputs grow the index will be unique
 		# this is true even when basmEngine is called multiple times to generate matrix elements	
 		if hasReal:
 			if not "real: "+str(expr) in self.inputs:
 				self.inputs.append("real: "+str(expr))
-				print("real: "+str(expr)+" -> "+str(len(self.inputs)-1))
+				print("real: "+str(expr)+" -> i"+str(len(self.inputs)-1))
 			inIdx = self.inputs.index("real: "+str(expr))
 			self.basm += "%meta filinkatt "+outRe+" fi:ext, index: "+str(inIdx)+", type: input\n"
 		if hasImm:
 			if not "imag: "+str(expr) in self.inputs:
 				self.inputs.append("imag: "+str(expr))
-				print("imag: "+str(expr)+" -> "+str(len(self.inputs)-1))
+				print("imag: "+str(expr)+" -> i"+str(len(self.inputs)-1))
 			inIdx = self.inputs.index("imag: "+str(expr))
 			self.basm += "%meta filinkatt "+outIm+" fi:ext, index: "+str(inIdx)+", type: input\n"
 		return outRe,outIm,myIndex
@@ -273,8 +273,22 @@ def basmArgsProcessor(self, expr, myIndex):
 
 			return realArsg
 		else:
-			print ("Unimplemented")
+			print ("The pow operation is not implemented for a number of arguments different from 2")
 			sys.exit(1)
+	elif expr.is_number:
+		# This is a number
+		argReal,argIm = tuple(x != 0 for x in expr.as_real_imag())
+		if argReal and argIm:
+			argType = "full"
+		elif argReal:
+			argType = "real"
+		elif argIm:
+			argType = "imag"
+		else:
+			argType = "zero"
+		nodeName = "num" + argType
+		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(expr.as_real_imag()[0])+", numberimag: " + self.prefix +str(expr.as_real_imag()[1])+", "+self.opsstring+"\n"
+		return []
 	else:
 		print ("Unimplemented")
 		sys.exit(1)
