@@ -33,10 +33,11 @@ def main():
 	expr = f.read()
 	f.close()
 
-	localParams = {'spExpr': None}
+	localParams = {'spExpr': None, 'testRanges': None}
 	globalParams = {'sp': sp}
 	exec(expr, globalParams, localParams)
 	spExpr = localParams['spExpr']
+	testRanges = localParams['testRanges']
 
 	if spExpr is None:
 		print("Error: The expression is not valid")
