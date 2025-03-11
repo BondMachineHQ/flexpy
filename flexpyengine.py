@@ -33,8 +33,7 @@ class flexpyEngine:
 
 		self.expr = symexpr
 		self.hls = ''
-		self.basm = '''
-%meta bmdef global registersize: '''+self.regsize+'''
+		self.basm = '''%meta bmdef global registersize: '''+self.regsize+'''
 '''
 		self.inputs = []
 		self.outputs = []
