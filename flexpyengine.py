@@ -35,6 +35,7 @@ class flexpyEngine:
 		self.hls = ''
 		self.basm = '''
 %meta bmdef global registersize: '''+self.regsize+'''
+%meta bmdef global iomode:sync
 '''
 		self.inputs = []
 		self.outputs = []
