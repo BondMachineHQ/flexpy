@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
         {
                 fp = fopen(argv[1], "r");
                 if (fp == NULL)
-                        printf("Input file %s not found\n", argv[1]), exit(EXIT_FAILURE);
+                        printf("Input file %s not found\\n", argv[1]), exit(EXIT_FAILURE);
                 while ((read = getline(&line, &len, fp)) != -1)
                         i++;
 
                 if (i % BM_INPUT != 0)
-                        printf("Input file %s has wrong number of elements\n", argv[1]), exit(EXIT_FAILURE);
+                        printf("Input file %s has wrong number of elements\\n", argv[1]), exit(EXIT_FAILURE);
 
                 rewind(fp);
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
                 while ((read = getline(&line, &len, fp)) != -1)
                 {
                         data[i] = atof(line);
-                        //printf("%f\n", data[i]);
+                        //printf("%f\\n", data[i]);
                         i++;
                 }
                 fclose(fp);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
                 fp = fopen(argv[2], "w");
                 if (fp == NULL)
-                        printf("Output file %s cannot be opened\n", argv[2]), exit(EXIT_FAILURE);
+                        printf("Output file %s cannot be opened\\n", argv[2]), exit(EXIT_FAILURE);
 
                 threshold = BATCH_SIZE;
                 for (offset = 0; offset < total; offset += TOTIN)
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
                         for (int i = 0; i < TOTOUT; i++)
                                 if (i < threshold * BM_OUTPUT)
-                                        fprintf(fp, "%.12f\n", d2[i]);
+                                        fprintf(fp, "%.12f\\n", d2[i]);
                 }
 
                 fclose(fp);
