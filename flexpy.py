@@ -5,7 +5,7 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--iomode <iomode>]
   flexpy -h | --help
 
 Options:
@@ -20,6 +20,7 @@ Options:
   --app-file <appfile>                              The application file to generate.
   --emit-bmapi-maps                                 Emit the bmapi maps.
   --bmapi-maps-file <bmapi-maps-file>               The file where to save the bmapi maps.
+  --iomode <iomode>                                 The iomode to use [default: sync].
 """
 from docopt import docopt
 import sympy as sp
@@ -54,6 +55,12 @@ def main():
 	# print(srepr(spEXpr))
 
 	eng=flexpyEngine(spExpr, regsize=arguments["-r"], type=arguments["-t"])
+
+	if arguments["--iomode"] == "async":
+		eng.basm += "%meta bmdef global iomode: async\n"
+	else:
+		eng.basm += "%meta bmdef global iomode: sync\n"
+
 
 	if arguments["--basm"]:
 		outbasm=eng.to_basm()
