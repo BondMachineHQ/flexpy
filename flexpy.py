@@ -5,7 +5,7 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>]
   flexpy -h | --help
 
 Options:
@@ -16,11 +16,18 @@ Options:
   -t <type>                                         The type of the numbers, if not specified it is set to float32.
   --basm                                            Convert the expression to BASM.
   --hls                                             Convert the expression to HLS.
+  --build-app                                       Build the application
+  --app-file <appfile>                              The application file to generate.
+  --emit-bmapi-maps                                 Emit the bmapi maps.
+  --bmapi-maps-file <bmapi-maps-file>               The file where to save the bmapi maps.
 """
-
 from docopt import docopt
 import sympy as sp
+import json
 from flexpyengine import flexpyEngine
+from jinja2 import Environment, DictLoader
+
+from files_cpynqapi import cpynqapi
 
 def main():
 	arguments = docopt(__doc__, version='Flexpy 0.0')
@@ -53,6 +60,34 @@ def main():
 		# Save to a file the basm code
 		with open(arguments["-o"], "w") as text_file:
 			text_file.write(eng.basm)
+
+		if arguments["--build-app"]:
+			if arguments["--app-file"]:
+
+				items = [{"bminputs": str(len(eng.inputs)), "bmoutputs": str(len(eng.outputs))}]
+				# Save to a file the app code
+				with open(arguments["--app-file"], "w") as appFile:
+					env = Environment(loader=DictLoader({'cpynqapi': cpynqapi}))
+					template = env.get_template('cpynqapi')
+					appFile.write(template.render(items=items))
+			else:
+				print("Error: The app file is not specified")
+				return
+		
+		if arguments["--emit-bmapi-maps"]:
+			if arguments["--bmapi-maps-file"]:
+				# Save to a file the bmapi maps
+				with open(arguments["--bmapi-maps-file"], "w") as bmapiFile:
+					assoc={}
+					for i in range(len(eng.inputs)):
+						assoc["i"+str(i)]=str(i)
+					for i in range(len(eng.outputs)):
+						assoc["o"+str(i)]=str(i)
+					mapFile= {"Assoc": assoc}
+					json.dump(mapFile, bmapiFile)
+			else:
+				print("Error: The bmapi maps file is not specified")
+				return
 
 	elif arguments["--hls"]:
 		outhls=eng.to_hls()
