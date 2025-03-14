@@ -6,7 +6,8 @@ from hlsengine import hlsEngine
 from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
 class flexpyEngine:
-	def __init__(self, symexpr=None, type=None, regsize=None):
+	def __init__(self, config=None, symexpr=None, type=None, regsize=None):
+		self.config = config
 		if type == None:
 			type = 'float32'
 			
@@ -18,6 +19,15 @@ class flexpyEngine:
 		for k,v in findOps.items():
 			self.opsstring += k+":"+v+","
 		self.opsstring = self.opsstring[:-1]
+		# If the configuration has parameters, use them to populate the params string
+		if self.config != None and 'params' in self.config:
+			self.params = ''
+			for k,v in self.config['params'].items():
+				self.params += k+":"+v+","
+			self.params = self.params[:-1]
+		else:
+			self.params = ''
+
 		if regsize is None:
 			if findSize == -1:
 				print ("Error: for the specified type, a register size must be provided")
@@ -81,6 +91,9 @@ class flexpyEngine:
 		try:
 			bmNumbers = subprocess.Popen(['bmnumbers',"-get-size", type], stdout=subprocess.PIPE)
 			bmNumbers.wait()
+			if bmNumbers.returncode == 1:
+				print ("Error: the type is not supported")
+				sys.exit(1)
 			findSize = bmNumbers.stdout.read().decode('utf-8').strip()
 		except:
 			print ("Error: bmnumbers failed to get the size of the type")
@@ -90,6 +103,9 @@ class flexpyEngine:
 		try:
 			bmNumbers = subprocess.Popen(['bmnumbers',"-get-prefix", type], stdout=subprocess.PIPE)
 			bmNumbers.wait()
+			if bmNumbers.returncode == 1:
+				print ("Error: the type is not supported")
+				sys.exit(1)
 			findPrefix = bmNumbers.stdout.read().decode('utf-8').strip()
 		except:
 			print ("Error: bmnumbers failed to get the prefix of the type")
@@ -99,6 +115,9 @@ class flexpyEngine:
 		try:
 			bmNumbers = subprocess.Popen(['bmnumbers',"-get-instructions", type], stdout=subprocess.PIPE)
 			bmNumbers.wait()
+			if bmNumbers.returncode == 1:
+				print ("Error: the type is not supported")
+				sys.exit(1)
 			findOps = bmNumbers.stdout.read().decode('utf-8').strip()
 			# unmarshal operations from JSON to a map
 			findOps = json.loads(findOps)

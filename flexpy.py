@@ -5,22 +5,23 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--iomode <iomode>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>]
   flexpy -h | --help
 
 Options:
-  -h --help                                         Show this screen.
-  -e <expression>                                   The expression to convert.
-  -o <outputfile>                                   The output file.
-  -r <registersize>                                 The size of the registers, only needed if the data type is variable size.
-  -t <type>                                         The type of the numbers, if not specified it is set to float32.
-  --basm                                            Convert the expression to BASM.
-  --hls                                             Convert the expression to HLS.
-  --build-app                                       Build the application
-  --app-file <appfile>                              The application file to generate.
-  --emit-bmapi-maps                                 Emit the bmapi maps.
-  --bmapi-maps-file <bmapi-maps-file>               The file where to save the bmapi maps.
-  --iomode <iomode>                                 The iomode to use [default: sync].
+  -h --help                                           Show this screen.
+  -e <expression>                                     The expression to convert.
+  -o <outputfile>                                     The output file.
+  -r <registersize>, --register-size <registersize>   The size of the registers, only needed if the data type is variable size.
+  -t <type>, --data-type <type>                       The type of the numbers, if not specified it is set to float32.
+  --basm                                              Convert the expression to BASM.
+  --hls                                               Convert the expression to HLS.
+  --config-file <config>                              The JSON configuration file to use.
+  --build-app                                         Build the application
+  --app-file <appfile>                                The application file to generate.
+  --emit-bmapi-maps                                   Emit the bmapi maps.
+  --bmapi-maps-file <bmapi-maps-file>                 The file where to save the bmapi maps.
+  --io-mode <iomode>                                  The iomode to use [default: sync].
 """
 from docopt import docopt
 import sympy as sp
@@ -32,15 +33,16 @@ from files_cpynqapi import cpynqapi
 
 def main():
 	arguments = docopt(__doc__, version='Flexpy 0.0')
-
+	
 	# Create the expression
 	exprFile = arguments["-e"]
 
-	# Read the content of the file and parse it
+	# Read the content of the file and read it
 	f = open(exprFile, "r")
 	expr = f.read()
 	f.close()
 
+	# Load the configuration file by executing the code
 	localParams = {'spExpr': None, 'testRanges': None}
 	globalParams = {'sp': sp}
 	exec(expr, globalParams, localParams)
@@ -51,12 +53,16 @@ def main():
 		print("Error: The expression is not valid")
 		return
 
-	# spExpr = sp.parse_expr(expr, evaluate=False)
-	# print(srepr(spEXpr))
+	config = None
+	# Eventually load the JSON configuration file
+	if arguments["--config-file"]:
+		configFile = arguments["--config-file"]
+		with open(configFile) as json_file:
+			config = json.load(json_file)
 
-	eng=flexpyEngine(spExpr, regsize=arguments["-r"], type=arguments["-t"])
+	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"])
 
-	if arguments["--iomode"] == "async":
+	if arguments["--io-mode"] == "async":
 		eng.basm += "%meta bmdef global iomode: async\n"
 	else:
 		eng.basm += "%meta bmdef global iomode: sync\n"
