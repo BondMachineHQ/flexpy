@@ -18,11 +18,11 @@ def basmEngine(self, expr):
 		self.newout = False
 		if hasReal:
 			self.outputs.append("real: "+str(expr))
-			print("o"+str(len(self.outputs)-1) + " -> real: "+str(expr))
+			if self.debug: print("o"+str(len(self.outputs)-1) + " -> real: "+str(expr))
 			self.basm += "%meta filinkatt "+outRe+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
 		if hasImm:
 			self.outputs.append("imag: "+str(expr))
-			print("o"+str(len(self.outputs)-1) + " -> imag: "+str(expr))
+			if self.debug: print("o"+str(len(self.outputs)-1) + " -> imag: "+str(expr))
 			self.basm += "%meta filinkatt "+outIm+" fi:ext, type: output, index: "+str(len(self.outputs)-1)+"\n"
 	if len(expr.args) == 0 and type(expr) == sp.Symbol:
 		# print(expr)
@@ -31,13 +31,13 @@ def basmEngine(self, expr):
 		if hasReal:
 			if not "real: "+str(expr) in self.inputs:
 				self.inputs.append("real: "+str(expr))
-				print("real: "+str(expr)+" -> i"+str(len(self.inputs)-1))
+				if self.debug: print("real: "+str(expr)+" -> i"+str(len(self.inputs)-1))
 			inIdx = self.inputs.index("real: "+str(expr))
 			self.basm += "%meta filinkatt "+outRe+" fi:ext, index: "+str(inIdx)+", type: input\n"
 		if hasImm:
 			if not "imag: "+str(expr) in self.inputs:
 				self.inputs.append("imag: "+str(expr))
-				print("imag: "+str(expr)+" -> i"+str(len(self.inputs)-1))
+				if self.debug: print("imag: "+str(expr)+" -> i"+str(len(self.inputs)-1))
 			inIdx = self.inputs.index("imag: "+str(expr))
 			self.basm += "%meta filinkatt "+outIm+" fi:ext, index: "+str(inIdx)+", type: input\n"
 		return outRe,outIm,myIndex

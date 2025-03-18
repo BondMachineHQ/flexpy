@@ -5,10 +5,12 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>]
+  flexpy -e <expression> --iomap-only --basm [-d] [--config-file <config>]
   flexpy -h | --help
 
 Options:
+  -d                                                  Debug mode.
   -h --help                                           Show this screen.
   -e <expression>                                     The expression to convert.
   -o <outputfile>                                     The output file.
@@ -22,6 +24,7 @@ Options:
   --emit-bmapi-maps                                   Emit the bmapi maps.
   --bmapi-maps-file <bmapi-maps-file>                 The file where to save the bmapi maps.
   --io-mode <iomode>                                  The iomode to use [default: sync].
+  --iomap-only                                        Generate only the iomap file.
 """
 from docopt import docopt
 import sympy as sp
@@ -60,7 +63,10 @@ def main():
 		with open(configFile) as json_file:
 			config = json.load(json_file)
 
-	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"])
+	debugMode = False
+	if arguments["-d"]:
+		debugMode = True
+	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"], debug=debugMode)
 
 	if arguments["--io-mode"] == "async":
 		eng.basm += "%meta bmdef global iomode: async\n"
@@ -70,9 +76,13 @@ def main():
 
 	if arguments["--basm"]:
 		outbasm=eng.to_basm()
-		# Save to a file the basm code
-		with open(arguments["-o"], "w") as text_file:
-			text_file.write(eng.basm)
+		if not arguments["--iomap-only"]:
+			# Save to a file the basm code
+			with open(arguments["-o"], "w") as text_file:
+				text_file.write(eng.basm)
+		else:
+			print(eng.inputs)
+			print(eng.outputs)
 
 		if arguments["--build-app"]:
 			if arguments["--app-file"]:

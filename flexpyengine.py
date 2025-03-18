@@ -6,7 +6,8 @@ from hlsengine import hlsEngine
 from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
 class flexpyEngine:
-	def __init__(self, config=None, symexpr=None, type=None, regsize=None):
+	def __init__(self, config=None, symexpr=None, type=None, regsize=None, debug=False):
+		self.debug = debug
 		self.config = config
 		if type == None:
 			type = 'float32'
