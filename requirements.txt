@@ -1,4 +1,5 @@
 pyinstaller
 sympy
+numpy
 docopt
 jinja2

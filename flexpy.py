@@ -28,6 +28,7 @@ Options:
 """
 from docopt import docopt
 import sympy as sp
+import numpy as np
 import json
 from flexpyengine import flexpyEngine
 from jinja2 import Environment, DictLoader
@@ -47,7 +48,7 @@ def main():
 
 	# Load the configuration file by executing the code
 	localParams = {'spExpr': None, 'testRanges': None}
-	globalParams = {'sp': sp}
+	globalParams = {'sp': sp, 'np': np}
 	exec(expr, globalParams, localParams)
 	spExpr = localParams['spExpr']
 	testRanges = localParams['testRanges']
