@@ -5,7 +5,7 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>]
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>] [--neuron-statistics <neuron-statistics>] 
   flexpy -e <expression> --iomap-only --basm [-d] [--config-file <config>]
   flexpy -h | --help
 
@@ -25,6 +25,7 @@ Options:
   --bmapi-maps-file <bmapi-maps-file>                 The file where to save the bmapi maps.
   --io-mode <iomode>                                  The iomode to use [default: sync].
   --iomap-only                                        Generate only the iomap file.
+  --neuron-statistics <neuron-statistics>             Save the neuron statistics to a file.
 """
 from docopt import docopt
 import sympy as sp
@@ -67,7 +68,12 @@ def main():
 	debugMode = False
 	if arguments["-d"]:
 		debugMode = True
-	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"], debug=debugMode)
+
+
+	neuronStatistics = None
+	if arguments["--neuron-statistics"]:
+		neuronStatistics = arguments["--neuron-statistics"]
+	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"], debug=debugMode, neuronStatistics=neuronStatistics)
 
 	if arguments["--io-mode"] == "async":
 		eng.basm += "%meta bmdef global iomode: async\n"
@@ -84,6 +90,11 @@ def main():
 		else:
 			print(eng.inputs)
 			print(eng.outputs)
+
+		if arguments["--neuron-statistics"]:
+			# Save the neuron statistics to a JSON file
+			with open(arguments["--neuron-statistics"], "w") as json_file:
+				json.dump(eng.neurons, json_file, indent=4)
 
 		if arguments["--build-app"]:
 			if arguments["--app-file"]:

@@ -189,9 +189,11 @@ def basmArgsProcessor(self, expr, myIndex):
 				else:
 					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
 
 			return realArsg
 		else:
@@ -267,9 +269,11 @@ def basmArgsProcessor(self, expr, myIndex):
 				# No inverse order here, pow is not commutative
 				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
 
 			return realArsg
 		else:
@@ -288,6 +292,7 @@ def basmArgsProcessor(self, expr, myIndex):
 			argType = "zero"
 		nodeName = "num" + argType
 		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(expr.as_real_imag()[0])+", numberimag: " + self.prefix +str(expr.as_real_imag()[1])+", "+self.opsstring+", "+self.params+"\n"
+		self.addToStatistics(nodeName)
 		return []
 	else:
 		print ("Unimplemented")

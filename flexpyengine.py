@@ -6,13 +6,15 @@ from hlsengine import hlsEngine
 from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
 class flexpyEngine:
-	def __init__(self, config=None, symexpr=None, type=None, regsize=None, debug=False):
+	def __init__(self, config=None, symexpr=None, type=None, regsize=None, debug=False, neuronStatistics=None):
 		self.debug = debug
 		self.config = config
 		if type == None:
 			type = 'float32'
 			
 		findSize, findPrefix, findOps = self.callBmNumbers(type)
+		self.neuronStatistics = neuronStatistics
+		self.neurons={}
 		self.type = type
 		self.prefix = findPrefix
 		self.ops = findOps
@@ -50,6 +52,12 @@ class flexpyEngine:
 		self.outputs = []
 		self.index = 0
 		self.mindex = 0
+
+	def addToStatistics(self, neuron):
+		if neuron not in self.neurons:
+			self.neurons[neuron] = 1
+		else:
+			self.neurons[neuron] += 1
 
 	def to_basm(self):
 		self.index = 0
