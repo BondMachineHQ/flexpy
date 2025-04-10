@@ -279,6 +279,29 @@ def basmArgsProcessor(self, expr, myIndex):
 		else:
 			print ("The pow operation is not implemented for a number of arguments different from 2")
 			sys.exit(1)
+	elif expr.func == sp.im:
+		if len(expr.args) == 1:
+			arg0 = expr.args[0]
+			# This is the immaginary part of a complex number
+			# Check if the arguments have real/imaginary parts
+			arg0Real,arg0Im = tuple(x != 0 for x in arg0.as_real_imag())
+			if arg0Real and arg0Im:
+				arg0Type = "full"
+			elif arg0Real:
+				arg0Type = "real"
+			elif arg0Im:
+				arg0Type = "imag"
+			else:
+				arg0Type = "zero"
+			nodeName = "imagarg" + arg0Type
+			self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", "+self.opsstring+", "+self.params+"\n"
+			self.addToStatistics(nodeName)
+			realArsg = []
+			realArsg.append(arg0)
+			return realArsg
+		else:
+			print ("The immaginary part operation is not implemented for a number of arguments different from 1")
+			sys.exit(1)
 	elif expr.is_number:
 		# This is a number
 		argReal,argIm = tuple(x != 0 for x in expr.as_real_imag())
