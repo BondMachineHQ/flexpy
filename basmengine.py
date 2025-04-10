@@ -188,7 +188,7 @@ def basmArgsProcessor(self, expr, myIndex):
 					nodeName = opName + "arg" + arg1Type + "num" + arg0Type
 				else:
 					nodeName = opName + "arg" + arg0Type + "num" + arg1Type
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(numValReal)+", numberimag: " +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
 				self.addToStatistics(nodeName)
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
@@ -268,7 +268,7 @@ def basmArgsProcessor(self, expr, myIndex):
 			elif numParams == 1:
 				# No inverse order here, pow is not commutative
 				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
-				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(numValReal)+", numberimag: " + self.prefix +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix)+", numberreal: " +str(numValReal)+", numberimag: " +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
 				self.addToStatistics(nodeName)
 			else:
 				nodeName = opName + "arg" + arg0Type + "arg" + arg1Type
@@ -314,7 +314,7 @@ def basmArgsProcessor(self, expr, myIndex):
 		else:
 			argType = "zero"
 		nodeName = "num" + argType
-		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", numberreal: " + self.prefix +str(expr.as_real_imag()[0])+", numberimag: " + self.prefix +str(expr.as_real_imag()[1])+", "+self.opsstring+", "+self.params+"\n"
+		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(expr.as_real_imag()[0])+", numberimag: " +str(expr.as_real_imag()[1])+", "+self.opsstring+", "+self.params+"\n"
 		self.addToStatistics(nodeName)
 		return []
 	else:
