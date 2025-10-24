@@ -1,5 +1,6 @@
 import sys
 import sympy as sp
+from sympy.printing.tree import print_tree
 
 def basmEngine(self, expr):
 	self.index+=1
@@ -197,7 +198,9 @@ def basmArgsProcessor(self, expr, myIndex):
 
 			return realArsg
 		else:
-			print ("Unimplemented")
+			print(f"Unimplemented: {expr.func.__name__} with {len(expr.args)} arguments is not supported")
+			print("\nExpression tree:")
+			print_tree(expr)
 			sys.exit(1)
 	elif expr.func == sp.exp:
 		if len(expr.args) == 1:
@@ -369,7 +372,9 @@ def basmArgsProcessor(self, expr, myIndex):
 		self.addToStatistics(nodeName)
 		return []
 	else:
-		print ("Unimplemented")
+		print(f"Unimplemented: {expr.func.__name__} is not supported")
+		print("\nExpression tree:")
+		print_tree(expr)
 		sys.exit(1)
 
 	# An add node with a hardcoded number
