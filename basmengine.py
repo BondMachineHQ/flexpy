@@ -162,9 +162,9 @@ def basmArgsProcessor(self, expr, myIndex):
 			if arg0.is_number:
 				numParams+=1
 				if arg0Real:
-					numValReal = arg0.as_real_imag()[0]
+					numValReal = self.asFloat(True, arg0)
 				if arg0Im:
-					numValIm = arg0.as_real_imag()[1]
+					numValIm = self.asFloat(False, arg0)
 
 			else:
 				realArsg.append(arg0)
@@ -172,15 +172,28 @@ def basmArgsProcessor(self, expr, myIndex):
 			if arg1.is_number:
 				numParams+=1
 				if arg1Real:
-					numValReal = arg1.as_real_imag()[0]
+					numValReal = self.asFloat(True, arg1)
 				if arg1Im:
-					numValIm = arg1.as_real_imag()[1]
+					numValIm = self.asFloat(False, arg1)
 			else:
 				realArsg.append(arg1)
 
 			if numParams == 2:
-				print ("unimplemented: the expression is a " + opName + " with two numbers")
-				sys.exit(1)
+				# In the end, this is a number let's compute it here and create a number node
+				res=expr.evalf()
+				argReal,argIm = tuple(x != 0 for x in res.as_real_imag())
+				if argReal and argIm:
+					argType = "full"
+				elif argReal:
+					argType = "real"
+				elif argIm:
+					argType = "imag"
+				else:
+					argType = "zero"
+				nodeName = "num" + argType
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(self.asFloat(True, res))+", numberimag: " +str(self.asFloat(False, res))+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
+				return []
 			elif numParams == 1:
 				# This inverse order is due to the fact that the first argument is the one that is absorbed by the processor
 				# the second argument is the one that is used in the processor
@@ -223,7 +236,7 @@ def basmArgsProcessor(self, expr, myIndex):
 			realArsg.append(arg0)
 			return realArsg
 		else:
-			print ("The exponential operation is not implemented for a number of arguments different from 1")
+			print ("Error: the exponential operation must have exactly one argument")
 			sys.exit(1)
 	elif expr.func == sp.Pow:
 		if len(expr.args) == 2:
@@ -269,9 +282,9 @@ def basmArgsProcessor(self, expr, myIndex):
 			if arg0.is_number:
 				numParams+=1
 				if arg0Real:
-					numValReal = arg0.as_real_imag()[0]
+					numValReal = self.asFloat(True, arg0)
 				if arg0Im:
-					numValIm = arg0.as_real_imag()[1]
+					numValIm = self.asFloat(False, arg0)
 				arg0Num = "num"
 			else:
 				arg0Num = "arg"
@@ -280,17 +293,30 @@ def basmArgsProcessor(self, expr, myIndex):
 			if arg1.is_number:
 				numParams+=1
 				if arg1Real:
-					numValReal = arg1.as_real_imag()[0]
+					numValReal = self.asFloat(True, arg1)
 				if arg1Im:
-					numValIm = arg1.as_real_imag()[1]
+					numValIm = self.asFloat(False, arg1)
 				arg1Num = "num"
 			else:
 				arg1Num = "arg"
 				realArsg.append(arg1)
 
 			if numParams == 2:
-				print ("unimplemented: the expression is a " + opName + " with two numbers")
-				sys.exit(1)
+				# In the end, this is a number let's compute it here and create a number node
+				res=expr.evalf()
+				argReal,argIm = tuple(x != 0 for x in res.as_real_imag())
+				if argReal and argIm:
+					argType = "full"
+				elif argReal:
+					argType = "real"
+				elif argIm:
+					argType = "imag"
+				else:
+					argType = "zero"
+				nodeName = "num" + argType
+				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(self.asFloat(True, res))+", numberimag: " +str(self.asFloat(False, res))+", "+self.opsstring+", "+self.params+"\n"
+				self.addToStatistics(nodeName)
+				return []
 			elif numParams == 1:
 				# No inverse order here, pow is not commutative
 				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
@@ -303,7 +329,7 @@ def basmArgsProcessor(self, expr, myIndex):
 
 			return realArsg
 		else:
-			print ("The pow operation is not implemented for a number of arguments different from 2")
+			print ("Error: the pow operation must have exactly two arguments")
 			sys.exit(1)
 	elif expr.func == sp.im:
 		if len(expr.args) == 1:
@@ -326,7 +352,7 @@ def basmArgsProcessor(self, expr, myIndex):
 			realArsg.append(arg0)
 			return realArsg
 		else:
-			print ("The immaginary part operation is not implemented for a number of arguments different from 1")
+			print ("Error: the imaginary part operation must have exactly one argument")
 			sys.exit(1)
 	elif expr.func == sp.cos or expr.func == sp.sin:
 		if expr.func == sp.cos:
@@ -354,7 +380,7 @@ def basmArgsProcessor(self, expr, myIndex):
 			realArsg.append(arg0)
 			return realArsg
 		else:
-			print ("The cosine operation is not implemented for a number of arguments different from 1")
+			print ("Error: the cosine and sine operations must have exactly one argument")
 			sys.exit(1)
 	elif expr.is_number:
 		# This is a number
@@ -368,7 +394,7 @@ def basmArgsProcessor(self, expr, myIndex):
 		else:
 			argType = "zero"
 		nodeName = "num" + argType
-		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(expr.as_real_imag()[0])+", numberimag: " +str(expr.as_real_imag()[1])+", "+self.opsstring+", "+self.params+"\n"
+		self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", numberreal: " + str(self.asFloat(True, expr))+", numberimag: " +str(self.asFloat(False, expr))+", "+self.opsstring+", "+self.params+"\n"
 		self.addToStatistics(nodeName)
 		return []
 	else:

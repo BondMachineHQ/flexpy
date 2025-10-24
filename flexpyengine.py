@@ -1,3 +1,4 @@
+from ast import expr
 import sys
 import subprocess
 import json
@@ -86,6 +87,60 @@ class flexpyEngine:
 				yield i
 		else:
 			yield expr
+
+	def asFloat(self, realPart, expr):
+		try:
+			expr.is_number
+		except:
+			print ("Error: the expression is not a number")
+			sys.exit(1)
+
+		if expr == sp.I:
+			if realPart:
+				return 0.0
+			else:
+				return 1.0
+
+		if expr == sp.pi:
+			if realPart:
+				return 3.141592653589793
+			else:
+				return 0.0
+			
+		if expr == sp.GoldenRatio:
+			if realPart:
+				return 1.618033988749895
+			else:
+				return 0.0
+			
+		if expr == sp.E:
+			if realPart:
+				return 2.718281828459045
+			else:
+				return 0.0
+
+		if expr == sp.EulerGamma:
+			if realPart:
+				return 0.577215664901532
+			else:
+				return 0.0
+			
+		if expr == sp.Catalan:
+			if realPart:
+				return 0.915965594177219
+			else:
+				return 0.0
+			
+		if expr == sp.S.Half:
+			if realPart:
+				return 0.5
+			else:
+				return 0.0
+
+		if realPart:
+			return expr.evalf().as_real_imag()[0]
+		else:
+			return expr.evalf().as_real_imag()[1]
 
 	def callBmNumbers(self, type):
 		# Check if the bmnumbers executable is available
