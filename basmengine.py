@@ -325,12 +325,25 @@ def basmArgsProcessor(self, expr, myIndex):
 				if arg1Type == "real" and arg1Num == "num" and numValReal % 1 == 0:
 				# Special case, the exponent is a real integer number
 					intExp = int(numValReal)
-					if intExp >= 1:
+					if intExp == 0:
+						# Exponent is zero, this is a number one
+						self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:numreal, prefix:"+ str(self.prefix) +", numberreal:1 , numberimag:0, "+self.opsstring+", "+self.params+"\n"
+						self.addToStatistics(nodeName)
+						return []
+					elif intExp >= 1:
 						# Positive integer exponent
 						nodeName = "powarg" + arg0Type + "numintpos"
 						self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", exponent: " + str(intExp)+", "+self.opsstring+", "+self.params+"\n"
 						self.addToStatistics(nodeName)
 						return realArsg
+					elif intExp < 0:
+						# This is more complex, we need to create a pow with positive exponent and then a division
+						nodeName = "onedividedbyarg" + arg0Type
+						self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", "+self.opsstring+", "+self.params+"\n"
+						self.addToStatistics(nodeName)
+						# Now create the pow node with positive exponent
+						newExpr = arg0 ** (-intExp)
+						return [newExpr]
 				
 				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix)+", numberreal: " +str(numValReal)+", numberimag: " +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
