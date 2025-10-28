@@ -319,6 +319,19 @@ def basmArgsProcessor(self, expr, myIndex):
 				return []
 			elif numParams == 1:
 				# No inverse order here, pow is not commutative
+
+				# Let's begin here with the special cases processing
+
+				if arg1Type == "real" and arg1Num == "num" and numValReal % 1 == 0:
+				# Special case, the exponent is a real integer number
+					intExp = int(numValReal)
+					if intExp >= 1:
+						# Positive integer exponent
+						nodeName = "powarg" + arg0Type + "numintpos"
+						self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix) +", exponent: " + str(intExp)+", "+self.opsstring+", "+self.params+"\n"
+						self.addToStatistics(nodeName)
+						return realArsg
+				
 				nodeName = opName + arg0Num + arg0Type + arg1Num + arg1Type
 				self.basm += "%meta fidef node"+mId+str(myIndex)+" fragment:"+nodeName+", prefix:"+ str(self.prefix)+", numberreal: " +str(numValReal)+", numberimag: " +str(numValIm)+", "+self.opsstring+", "+self.params+"\n"
 				self.addToStatistics(nodeName)
