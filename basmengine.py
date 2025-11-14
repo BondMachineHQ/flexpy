@@ -114,7 +114,11 @@ def basmExprPreprocessor(self, expr):
 def basmArgsProcessor(self, expr, myIndex):
 	mId = "_"+str(self.mindex)+"_"
 	realArsg = []
-	self.basm += "%meta cpdef node"+mId+str(myIndex)+" fragcollapse:node"+mId+str(myIndex)+"\n"
+
+	deviceString = ""
+	if self.currentDevice is not None:
+		deviceString = ",device:"+self.currentDevice+","+ "devid:"+str(self.currentDeviceIdx)
+	self.basm += "%meta cpdef node"+mId+str(myIndex)+" fragcollapse:node"+mId+str(myIndex)+deviceString+"\n"
 
 	# Start identifying the node and mapping it to known fragments
 	# Addition
@@ -424,6 +428,18 @@ def basmArgsProcessor(self, expr, myIndex):
 		self.addToStatistics(nodeName)
 		return []
 	else:
+		# Eventually check if this is a custom device function
+		if self.deviceExpr is not None:
+			for i in range(len(self.deviceExpr)):
+				idev = self.deviceExpr[i]
+				if expr.func == idev:
+					self.currentDevice = expr.func.__name__
+					self.currentDeviceIdx = i + 1
+					arg0 = expr.args[0]								
+					realArsg = []
+					realArsg.append(arg0)
+					return realArsg
+				
 		print(f"Unimplemented: {expr.func.__name__} is not supported")
 		print("\nExpression tree:")
 		print_tree(expr)

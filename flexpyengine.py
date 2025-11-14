@@ -7,7 +7,7 @@ from hlsengine import hlsEngine
 from basmengine import basmEngine, basmArgsProcessor, basmExprPreprocessor
 
 class flexpyEngine:
-	def __init__(self, config=None, symexpr=None, type=None, regsize=None, debug=False, neuronStatistics=None):
+	def __init__(self, config=None, symexpr=None, type=None, regsize=None, debug=False, neuronStatistics=None, deviceExpr=None):
 		self.debug = debug
 		self.config = config
 		if type == None:
@@ -19,6 +19,9 @@ class flexpyEngine:
 		self.type = type
 		self.prefix = findPrefix
 		self.ops = findOps
+		self.deviceExpr = deviceExpr
+		self.currentDevice = None
+		self.currentDeviceIdx = 0
 		self.opsstring = ''
 		for k,v in findOps.items():
 			self.opsstring += k+":"+v+","

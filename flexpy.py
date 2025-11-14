@@ -5,7 +5,7 @@
    Copyright 2025 - Mirko Mariotti - https://www.mirkomariotti.it
 
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>] [--neuron-statistics <neuron-statistics>] 
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>] [--neuron-statistics <neuron-statistics>] [--devices <devices>] 
   flexpy -e <expression> --iomap-only --basm [-d] [--config-file <config>]
   flexpy -h | --help
 
@@ -26,6 +26,7 @@ Options:
   --io-mode <iomode>                                  The iomode to use [default: sync].
   --iomap-only                                        Generate only the iomap file.
   --neuron-statistics <neuron-statistics>             Save the neuron statistics to a file.
+  --devices <devices>                                 Comma separated list of devices to target.
 """
 from docopt import docopt
 import sympy as sp
@@ -47,12 +48,22 @@ def main():
 	expr = f.read()
 	f.close()
 
+	deviceList = []
+	deviceExpr = []
+	devices = arguments["--devices"]
+	if devices and devices!="none":
+		deviceList = devices.split(",")
+
 	# Load the configuration file by executing the code
 	localParams = {'spExpr': None, 'testRanges': None}
 	globalParams = {'sp': sp, 'np': np}
+	for device in deviceList:
+		exec(device+"=sp.Function('"+device+"')", globalParams, localParams)
 	exec(expr, globalParams, localParams)
 	spExpr = localParams['spExpr']
 	testRanges = localParams['testRanges']
+	for device in deviceList:
+		deviceExpr.append(localParams[device])
 
 	if spExpr is None:
 		print("Error: The expression is not valid")
@@ -73,7 +84,7 @@ def main():
 	neuronStatistics = None
 	if arguments["--neuron-statistics"]:
 		neuronStatistics = arguments["--neuron-statistics"]
-	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"], debug=debugMode, neuronStatistics=neuronStatistics)
+	eng=flexpyEngine(config, spExpr, regsize=arguments["--register-size"], type=arguments["--data-type"], debug=debugMode, neuronStatistics=neuronStatistics, deviceExpr=deviceExpr)
 
 	if arguments["--io-mode"] == "async":
 		eng.basm += "%meta bmdef global iomode: async\n"
