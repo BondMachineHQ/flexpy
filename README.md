@@ -20,7 +20,8 @@ Before using Flexpy, you need to have:
 1. **Python 3.x** installed
 2. **bmnumbers** executable available in your PATH - This is a BondMachine tool required for type system operations
    - Used to get size, prefix, and supported operations for different numeric types
-   - Without this, Flexpy will exit with an error
+   - Part of the BondMachine toolchain - visit [BondMachine](https://bondmachine.fisica.unipg.it/) for installation instructions
+   - Without this tool, Flexpy will exit with an error message
 
 ## Installation
 
@@ -77,9 +78,10 @@ python flexpy.py -e simple_expr.txt -o output.hls --hls
 
 ```
 Usage:
-  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] [--config-file <config>] 
-         [-r <registersize>] [-t <type>] [--build-app] [--app-file <appfile>] 
-         [--emit-bmapi-maps] [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>] 
+  flexpy -e <expression> -o <outputfile> (--basm | --hls) [-d] 
+         [--config-file <config>] [-r <registersize>] [-t <type>] [--build-app] 
+         [--app-file <appfile>] [--emit-bmapi-maps] 
+         [--bmapi-maps-file <bmapi-maps-file>] [--io-mode <iomode>] 
          [--neuron-statistics <neuron-statistics>] [--devices <devices>] 
   flexpy -e <expression> --iomap-only --basm [-d] [--config-file <config>]
   flexpy -h | --help

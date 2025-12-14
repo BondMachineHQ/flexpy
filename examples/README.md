@@ -7,7 +7,12 @@ This directory contains example expression files demonstrating various features 
 ### simple_addition.txt
 Basic addition of two variables. Good starting point for learning Flexpy.
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/simple_addition.txt -o simple_addition.basm --basm
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e simple_addition.txt -o simple_addition.basm --basm
 ```
@@ -15,7 +20,12 @@ python ../flexpy.py -e simple_addition.txt -o simple_addition.basm --basm
 ### polynomial.txt
 Polynomial expression demonstrating power and multiplication operations.
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/polynomial.txt -o polynomial.basm --basm
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e polynomial.txt -o polynomial.basm --basm
 ```
@@ -23,7 +33,12 @@ python ../flexpy.py -e polynomial.txt -o polynomial.basm --basm
 ### trigonometric.txt
 Trigonometric functions (sine and cosine).
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/trigonometric.txt -o trigonometric.basm --basm
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e trigonometric.txt -o trigonometric.basm --basm
 ```
@@ -31,7 +46,12 @@ python ../flexpy.py -e trigonometric.txt -o trigonometric.basm --basm
 ### matrix_operations.txt
 Matrix operations example showing how to work with matrices in Flexpy.
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/matrix_operations.txt -o matrix_operations.basm --basm
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e matrix_operations.txt -o matrix_operations.basm --basm
 ```
@@ -39,7 +59,12 @@ python ../flexpy.py -e matrix_operations.txt -o matrix_operations.basm --basm
 ### complex_expression.txt
 Complex expression combining multiple operations including square root.
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/complex_expression.txt -o complex_expression.basm --basm
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e complex_expression.txt -o complex_expression.basm --basm
 ```
@@ -49,14 +74,40 @@ python ../flexpy.py -e complex_expression.txt -o complex_expression.basm --basm
 ### example_config.json
 Example JSON configuration file showing how to pass custom parameters.
 
-**Usage:**
+**Usage (from repository root):**
+```bash
+python flexpy.py -e examples/simple_addition.txt -o output.basm --basm --config-file examples/example_config.json
+```
+
+**Usage (from examples directory):**
 ```bash
 python ../flexpy.py -e simple_addition.txt -o output.basm --basm --config-file example_config.json
 ```
 
 ## Running Examples
 
-From the examples directory:
+**Note:** Commands can be run from either the repository root or the examples directory.
+
+### From the repository root:
+
+```bash
+# Generate BASM output
+python flexpy.py -e examples/simple_addition.txt -o output.basm --basm
+
+# Generate HLS output
+python flexpy.py -e examples/simple_addition.txt -o output.hls --hls
+
+# With debug mode
+python flexpy.py -e examples/simple_addition.txt -o output.basm --basm -d
+
+# With custom data type
+python flexpy.py -e examples/simple_addition.txt -o output.basm --basm -t float64
+
+# Get only I/O mapping
+python flexpy.py -e examples/simple_addition.txt --iomap-only --basm
+```
+
+### From the examples directory:
 
 ```bash
 # Generate BASM output
