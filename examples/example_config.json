@@ -1,0 +1,6 @@
+{
+  "params": {
+    "optimization_level": "2",
+    "target_platform": "bondmachine"
+  }
+}
