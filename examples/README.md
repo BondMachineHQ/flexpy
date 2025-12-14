@@ -131,7 +131,7 @@ python ../flexpy.py -e simple_addition.txt --iomap-only --basm
 To create a new expression file:
 
 1. Create a `.txt` file with Python code
-2. Import necessary libraries (sympy, numpy)
+2. Import sympy (and optionally numpy if needed for arrays)
 3. Define symbolic variables using `sp.symbols()`
 4. Set `spExpr` to your expression
 5. Set `testRanges = None` (or define custom test ranges)
@@ -147,5 +147,20 @@ x, y = sp.symbols('x y')
 spExpr = x + y  # Replace with your expression
 
 # Test ranges (optional)
+testRanges = None
+```
+
+Example with numpy (for tensors):
+```python
+import sympy as sp
+import numpy as np
+
+# Define variables
+x, y = sp.symbols('x y')
+
+# Create a tensor expression
+arr = np.array([[x, y], [y, x]])
+spExpr = sp.Array(arr)
+
 testRanges = None
 ```

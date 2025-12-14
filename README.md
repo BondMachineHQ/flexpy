@@ -268,7 +268,14 @@ HLS (High-Level Synthesis) output generates code suitable for hardware synthesis
 
 ## Examples
 
-See the `tests/` directory for additional examples:
+See the `examples/` directory for practical examples to get started:
+- `examples/simple_addition.txt` - Basic addition of two variables
+- `examples/polynomial.txt` - Polynomial expression with powers
+- `examples/trigonometric.txt` - Trigonometric functions
+- `examples/matrix_operations.txt` - 2x2 matrix operations
+- `examples/complex_expression.txt` - Complex multi-operation expression
+
+See the `tests/` directory for additional advanced examples:
 - `tests/demo_tree_printing.py` - Demonstrates expression tree visualization
 - `tests/test_unimplemented_tree.py` - Tests for unimplemented functions
 - `qiskit-symb-test/` - Quantum circuit example using Qiskit
