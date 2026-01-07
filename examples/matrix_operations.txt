@@ -1,0 +1,9 @@
+import sympy as sp
+
+# Matrix operations
+x, y, z, w = sp.symbols('x y z w')
+
+# 2x2 matrix
+spExpr = sp.Matrix([[x + y, x - y], 
+                    [z * w, z + w]])
+testRanges = None
