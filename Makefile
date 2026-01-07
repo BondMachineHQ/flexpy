@@ -10,7 +10,7 @@ install-req:
 .PHONY: package
 package: install-req
 	@echo "Packaging..."
-	pyinstaller --onefile ${PACKAGENAME}.py
+	pyinstaller -s --onefile ${PACKAGENAME}.py
 
 .PHONY: clean
 clean:
