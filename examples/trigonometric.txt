@@ -1,0 +1,6 @@
+import sympy as sp
+
+# Trigonometric expression
+x = sp.Symbol('x')
+spExpr = sp.sin(x) + sp.cos(x)
+testRanges = None

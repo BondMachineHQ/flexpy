@@ -1,0 +1,6 @@
+import sympy as sp
+
+# Simple addition of two variables
+x, y = sp.symbols('x y')
+spExpr = x + y
+testRanges = None

@@ -1,0 +1,6 @@
+import sympy as sp
+
+# Polynomial expression: x^2 + 2*x*y + y^2
+x, y = sp.symbols('x y')
+spExpr = x**2 + 2*x*y + y**2
+testRanges = None
