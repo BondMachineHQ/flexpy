@@ -3,3 +3,4 @@ sympy
 numpy
 docopt
 jinja2
+dill

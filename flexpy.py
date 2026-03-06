@@ -32,6 +32,7 @@ from docopt import docopt
 import sympy as sp
 import numpy as np
 import json
+import dill
 from flexpyengine import flexpyEngine
 from jinja2 import Environment, DictLoader
 
